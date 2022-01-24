@@ -27,7 +27,7 @@ export class Community extends BaseEntity {
 	createdAt: Date;
 
 	@ManyToOne(() => User, (user) => user.communities)
-	user: User;
+	founder: User;
 
 	@OneToMany(() => Membership, (membership) => membership.community)
 	memberships: Membership[];

@@ -1,3 +1,4 @@
+import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 import {
 	Entity,
 	Column,
@@ -5,6 +6,7 @@ import {
 	PrimaryGeneratedColumn,
 	OneToMany,
 } from "typeorm";
+
 import { Book } from "./Book";
 import { Community } from "./Community";
 import { Loan } from "./Loan";
@@ -24,13 +26,10 @@ export class User extends BaseEntity {
 	@Column({ type: "varchar", length: 50 })
 	email: string;
 
-	@Column({ type: "int", default: 0 })
-	bookQuota: number;
-
 	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
 	createdAt: Date;
 
-	@OneToMany(() => Community, (community) => community.user)
+	@OneToMany(() => Community, (community) => community.founder)
 	communities: Community[];
 
 	@OneToMany(() => Membership, (membership) => membership.user)
@@ -44,4 +43,19 @@ export class User extends BaseEntity {
 
 	@OneToMany(() => Loan, (loan) => loan.borrower)
 	incomingLoans: Loan[];
+}
+
+export class UserSchema {
+	@IsNotEmpty()
+	@IsString()
+	@MinLength(6)
+	username: string;
+
+	@IsNotEmpty()
+	@IsString()
+	@MinLength(6)
+	password: string;
+
+	@IsEmail()
+	email: string;
 }

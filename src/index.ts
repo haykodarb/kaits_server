@@ -7,6 +7,14 @@ import usersRouter from "./routes/users.routes";
 
 const app = express();
 
+declare global {
+	namespace Express {
+		interface Request {
+			user: string;
+		}
+	}
+}
+
 app.use(cors());
 app.use(express.json());
 
