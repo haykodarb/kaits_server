@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"lib": ["es5", "es6"],
+		"typeRoots": ["./src/types"],
 		"target": "es5",
 		"module": "commonjs",
 		"moduleResolution": "node",

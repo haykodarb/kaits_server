@@ -11,7 +11,7 @@ import { User } from "./User";
 
 @Entity({ name: "books" })
 export class Book extends BaseEntity {
-	@PrimaryGeneratedColumn("uuid")
+	@PrimaryGeneratedColumn("uuid", {})
 	id: string;
 
 	@Column({ type: "varchar", length: 50 })

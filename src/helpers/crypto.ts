@@ -1,6 +1,5 @@
 import { config } from "dotenv";
 config();
-
 import { genSaltSync, hashSync, compareSync } from "bcrypt";
 import jwt = require("jsonwebtoken");
 import { Request, Response } from "express";
@@ -31,22 +30,16 @@ export const verifyUser = (req: Request, res: Response, next: Function) => {
 	const header = req.headers.authorization;
 
 	if (!header) {
-		return res.status(403).json({
-			success: false,
-			payload: "No authorization token",
-		});
+		return res.status(403).send("No authorization token");
 	}
 
 	const token = header.split(" ")[1];
 
 	jwt.verify(token, JWT_SECRET, (err, payload) => {
 		if (err) {
-			return res.status(403).json({
-				success: false,
-				payload: "Authorization token is incorrect",
-			});
+			return res.status(403).send("Authorization token is incorrect");
 		} else {
-			req.user = payload.toString();
+			req.userId = payload.toString();
 			return next();
 		}
 	});

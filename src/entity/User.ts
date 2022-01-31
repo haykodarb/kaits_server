@@ -17,20 +17,20 @@ export class User extends BaseEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
-	@Column({ type: "varchar", length: 50 })
+	@Column({ type: "varchar", unique: true, length: 50 })
 	username: string;
 
 	@Column({ type: "text" })
 	password: string;
 
-	@Column({ type: "varchar", length: 50 })
+	@Column({ type: "varchar", unique: true, length: 50 })
 	email: string;
 
 	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
 	createdAt: Date;
 
 	@OneToMany(() => Community, (community) => community.founder)
-	communities: Community[];
+	foundedCommunities: Community[];
 
 	@OneToMany(() => Membership, (membership) => membership.user)
 	memberships: Membership[];
