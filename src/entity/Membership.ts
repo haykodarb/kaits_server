@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNotEmptyObject, IsUUID } from "class-validator";
+import {
+	IsBoolean,
+	IsNotEmpty,
+	IsNotEmptyObject,
+	IsString,
+	IsUUID,
+} from "class-validator";
 import {
 	Entity,
 	Column,
@@ -14,14 +20,21 @@ export class Membership extends BaseEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
+	@Column({ type: "varchar", length: 50, nullable: false })
+	joinCode: string;
+
 	@Column({ type: "boolean", default: false })
 	isAdmin: boolean;
 
-	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-	createdAt: Date;
+	@Column({ type: "boolean", default: false })
+	hasJoined: boolean;
 
-	@Column({ type: "timestamp", default: null, nullable: true })
-	approvedAt: Date;
+	@Column({
+		type: "timestamp",
+		default: () => "CURRENT_TIMESTAMP",
+		nullable: false,
+	})
+	createdAt: Date;
 
 	@ManyToOne(() => User, (user) => user.memberships)
 	user: User;
@@ -36,4 +49,14 @@ export class MembershipSchema {
 
 	@IsNotEmpty()
 	community: Community;
+
+	@IsBoolean()
+	isAdmin: boolean;
+
+	@IsBoolean()
+	hasJoined: boolean;
+
+	@IsString()
+	@IsNotEmpty()
+	joinCode: string;
 }

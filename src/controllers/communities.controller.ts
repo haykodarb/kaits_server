@@ -19,7 +19,7 @@ export const createCommunity = async (req: Request, res: Response) => {
 
 		const validationErrors: ValidationError[] = await validate(inputCommunity);
 
-		res.status(403);
+		res.status(400);
 
 		if (validationErrors && validationErrors.length > 0) {
 			return res.send(validationErrors[0]);
@@ -39,7 +39,8 @@ export const createCommunity = async (req: Request, res: Response) => {
 
 		const membershipCreated: boolean = await createMembership(
 			inputCommunity.founder,
-			createdCommunity
+			createdCommunity,
+			false
 		);
 
 		if (!membershipCreated) {
@@ -49,11 +50,11 @@ export const createCommunity = async (req: Request, res: Response) => {
 		return res.status(200).send("Community created successfully.");
 	} catch (error) {
 		if (error.code == "ER_DUP_ENTRY") {
-			return res.status(403).send("Community with this name already exists");
+			return res.status(400).send("Community with this name already exists");
 		}
 
 		return res
-			.status(403)
+			.status(500)
 			.send("Error in creating community, please try again");
 	}
 };
@@ -74,6 +75,7 @@ export const getCommunitiesForUser = async (req: Request, res: Response) => {
 		);
 
 		return res.status(200).send(communitiesResult);
-	} catch (error) {}
+	} catch (error) {
+		return res.status(500).send("Internal server error");
+	}
 };
-1;

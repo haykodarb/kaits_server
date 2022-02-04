@@ -23,7 +23,7 @@ export class Community extends BaseEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
-	@Column({ type: "varchar", length: 50, unique: true })
+	@Column({ type: "varchar", length: 255, unique: true })
 	name: string;
 
 	@Column({ type: "text" })

@@ -21,7 +21,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 		const validationErrors: ValidationError[] = await validate(inputBody);
 
 		if (validationErrors && validationErrors.length > 0) {
-			return res.status(403).json({
+			return res.status(400).json({
 				errors: validationErrors,
 			});
 		}
@@ -30,7 +30,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 			username: inputBody.username,
 		});
 
-		res.status(403);
+		res.status(400);
 
 		if (!storedUser || !storedUser.password) {
 			return res.send("User does not exist.");
@@ -44,7 +44,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 
 		return res.status(200).send(generateToken(storedUser.id));
 	} catch (error) {
-		return res.status(403).send("Error in login, please try again.");
+		return res.status(500).send("Error in login, please try again.");
 	}
 };
 
@@ -52,7 +52,7 @@ export const register = async (
 	req: Request,
 	res: Response
 ): Promise<Response> => {
-	res.status(403);
+	res.status(400);
 
 	let inputBody = new UserSchema();
 
@@ -84,11 +84,13 @@ export const register = async (
 		if (isUsernameTaken) {
 			return res.send("Username is taken.");
 		}
+
 		const isEmailTaken = await userRepository.findOne({
 			where: {
 				email: newUser.email,
 			},
 		});
+
 		if (isEmailTaken) {
 			return res.send("Email is already being used.");
 		}
@@ -98,9 +100,9 @@ export const register = async (
 		if (insertResult && insertResult.identifiers.length > 0)
 			return res.status(200).send("User created successfully.");
 
-		return res.send("Error in creating user, please try again.");
+		return res.status(500).send("Error in creating user, please try again.");
 	} catch (error) {
-		return res.send(error);
+		return res.status(500).send("Error in creating user, please try again.");
 	}
 };
 
@@ -108,9 +110,20 @@ export const removeUser = async (
 	req: Request,
 	res: Response
 ): Promise<Response> => {
-	const userId: string = req.params.id;
+	try {
+		const userId: string = req.params.id;
 
-	const result: DeleteResult = await getRepository(User).delete({ id: userId });
+		const result: DeleteResult = await getRepository(User).delete({
+			id: userId,
+		});
 
-	return res.status(200).send(result.affected > 0);
+		if (result && result.affected > 0) {
+			return res.status(200).send("User deleted");
+		}
+		{
+			return res.status(500).send("Server error, please try again later.");
+		}
+	} catch (error) {
+		return res.status(500).send("Server error, please try again later.");
+	}
 };
