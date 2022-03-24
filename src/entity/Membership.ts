@@ -20,9 +20,6 @@ export class Membership extends BaseEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
-	@Column({ type: "varchar", length: 50, nullable: false })
-	joinCode: string;
-
 	@Column({ type: "boolean", default: false })
 	isAdmin: boolean;
 
@@ -36,10 +33,21 @@ export class Membership extends BaseEntity {
 	})
 	createdAt: Date;
 
-	@ManyToOne(() => User, (user) => user.memberships)
+	@Column({
+		type: "timestamp",
+		nullable: true,
+		default: null,
+	})
+	joinedAt: Date;
+
+	@ManyToOne(() => User, (user) => user.memberships, {
+		eager: true,
+	})
 	user: User;
 
-	@ManyToOne(() => Community, (community) => community.memberships)
+	@ManyToOne(() => Community, (community) => community.memberships, {
+		eager: true,
+	})
 	community: Community;
 }
 
@@ -55,8 +63,4 @@ export class MembershipSchema {
 
 	@IsBoolean()
 	hasJoined: boolean;
-
-	@IsString()
-	@IsNotEmpty()
-	joinCode: string;
 }

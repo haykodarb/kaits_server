@@ -3,14 +3,43 @@ import { DeleteResult, getRepository, InsertResult } from "typeorm";
 import { User, UserSchema } from "../entity/User";
 import { validate, ValidationError } from "class-validator";
 import { encrypt, compare, generateToken } from "../helpers/crypto";
+import { getUsersInCommunity } from "../data/communities.data";
+import { Community } from "../entity/Community";
+import { getCommunityById } from "../data/communities.data";
+import { searchUsers } from "../data/users.data";
 
-export const getUserById = async (userId: string): Promise<User> => {
-	const user: User = await getRepository(User).findOne({ id: userId });
+export const searchForUsersHandler = async (req: Request, res: Response) => {
+	try {
+		const searchQuery: string = req.query.query.toString();
 
-	return user;
+		const communityId: string = req.query.communityId.toString();
+
+		const community: Community = await getCommunityById(communityId, true);
+
+		const usersAlreadyInCommunity: User[] = await getUsersInCommunity(
+			community
+		);
+
+		const usersFound: User[] = await searchUsers(
+			searchQuery,
+			usersAlreadyInCommunity.map((value) => value.id)
+		);
+
+		if (usersFound == undefined || usersFound == null)
+			return res.status(500).send("Internal server error.");
+
+		return res.status(200).send(usersFound);
+	} catch (error) {
+		console.error(error);
+
+		return res.status(500).send("Internal server error.");
+	}
 };
 
-export const login = async (req: Request, res: Response): Promise<Response> => {
+export const loginHandler = async (
+	req: Request,
+	res: Response
+): Promise<Response> => {
 	let inputBody = new UserSchema();
 
 	inputBody.username = req.body.username;
@@ -30,25 +59,25 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
 			username: inputBody.username,
 		});
 
-		res.status(400);
-
 		if (!storedUser || !storedUser.password) {
-			return res.send("User does not exist.");
+			return res.status(400).send("User does not exist.");
 		}
 
 		const isPasswordValid = compare(inputBody.password, storedUser.password);
 
 		if (!isPasswordValid) {
-			return res.send("Incorrect password.");
+			return res.status(400).send("Incorrect password.");
 		}
 
 		return res.status(200).send(generateToken(storedUser.id));
 	} catch (error) {
+		console.error(error);
+
 		return res.status(500).send("Error in login, please try again.");
 	}
 };
 
-export const register = async (
+export const registerHandler = async (
 	req: Request,
 	res: Response
 ): Promise<Response> => {
@@ -102,6 +131,8 @@ export const register = async (
 
 		return res.status(500).send("Error in creating user, please try again.");
 	} catch (error) {
+		console.error(error);
+
 		return res.status(500).send("Error in creating user, please try again.");
 	}
 };
@@ -112,6 +143,11 @@ export const removeUser = async (
 ): Promise<Response> => {
 	try {
 		const userId: string = req.params.id;
+
+		if (req.userId == userId)
+			return res
+				.status(400)
+				.send("Requesting user does not match user to delete.");
 
 		const result: DeleteResult = await getRepository(User).delete({
 			id: userId,
@@ -124,6 +160,8 @@ export const removeUser = async (
 			return res.status(500).send("Server error, please try again later.");
 		}
 	} catch (error) {
+		console.error(error);
+
 		return res.status(500).send("Server error, please try again later.");
 	}
 };

@@ -1,17 +1,25 @@
 import { Router } from "express";
 import {
-	createCommunity,
-	getCommunitiesForUser,
+	adminCommunitiesForUserHandler,
+	communitiesForUserHandler,
+	createCommunityHandler,
+	joinCommunityHandler,
+	usersInCommunityHandler,
 } from "../controllers/communities.controller";
-import { joinCommunity } from "../controllers/memberships.controller";
 import { verifyUser } from "../helpers/crypto";
 
 const router = Router();
 
-router.post("/", verifyUser, createCommunity);
+router.use(verifyUser);
 
-router.get("/", verifyUser, getCommunitiesForUser);
+router.post("/", createCommunityHandler);
 
-router.post("/join", joinCommunity);
+router.get("/", communitiesForUserHandler);
+
+router.get("/admin", adminCommunitiesForUserHandler);
+
+router.get("/users", usersInCommunityHandler);
+
+router.post("/join", joinCommunityHandler);
 
 export default router;

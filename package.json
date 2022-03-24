@@ -22,6 +22,7 @@
         "express": "^4.17.2",
         "jsonwebtoken": "^8.5.1",
         "mysql": "^2.14.1",
+        "redis": "^4.0.3",
         "reflect-metadata": "^0.1.10",
         "typeorm": "0.2.41",
         "uuid": "^8.3.2"

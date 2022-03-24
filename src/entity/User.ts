@@ -5,6 +5,7 @@ import {
 	BaseEntity,
 	PrimaryGeneratedColumn,
 	OneToMany,
+	JoinColumn,
 } from "typeorm";
 
 import { Book } from "./Book";
